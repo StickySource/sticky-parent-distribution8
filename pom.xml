@@ -68,6 +68,7 @@
     <connection>${git.url}</connection>
     <developerConnection>${git.url}</developerConnection>
     <tag>HEAD</tag>
+    <url>${git.url}</url>
   </scm>
 
   <properties>

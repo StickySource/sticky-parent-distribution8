@@ -99,7 +99,7 @@
           <version>2.5.3</version>
           <configuration>
             <preparationGoals>clean validate bounds:update enforcer:enforce verify</preparationGoals>
-            <goals>validate deploy</goals>
+            <goals>validate enforcer:enforce deploy</goals>
             <localCheckout>true</localCheckout>
             <pushChanges>false</pushChanges>
           </configuration>
@@ -164,60 +164,27 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
           <version>3.0.0-M1</version>
-          <executions>
-            <execution>
-              <id>default-enforce</id>
-              <!-- Invocation is defined by the release plugin goal set hence no executions -->
-              <configuration>
+          <configuration>
+            <rules>
+              <!-- Don't allow accidental inclusion of commons logging or log4j -->
+              <bannedDependencies>
+                <message>Please ensure you exclude all dependencies on logging implementations</message>
+                <excludes>
+                  <exclude>commons-logging</exclude>
+                  <exclude>commons-logging-api</exclude>
+                  <exclude>log4j:log4j</exclude>
+                </excludes>
+              </bannedDependencies>
+              <requireJavaVersion>
+                <version>[1.8,1.9)</version>
+              </requireJavaVersion>
+              <requireMavenVersion>
+                <version>[3.5,)</version>
+              </requireMavenVersion>
+            </rules>
 
-                <rules>
-                  <requireReleaseDeps>
-                    <message>No SNAPSHOTs allowed in depedency tree or parents allowed when releasing!</message>
-                    <failWhenParentIsSnapshot>true</failWhenParentIsSnapshot>
-                    <searchTransitive>true</searchTransitive>
-                  </requireReleaseDeps>
-                  <requireJavaVersion>
-                    <version>[1.8,1.9)</version>
-                  </requireJavaVersion>
-                  <requireMavenVersion>
-                    <version>[3.5,)</version>
-                  </requireMavenVersion>
-                </rules>
-
-                <fail>true</fail>
-              </configuration>
-            </execution>
-
-            <execution>
-              <phase>validate</phase>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <id>default-cli</id>
-              <configuration>
-                <rules>
-                  <!-- Don't allow accidental inclusion of commons logging or log4j -->
-                  <bannedDependencies>
-                    <message>Please ensure you exclude all dependencies on logging implementations</message>
-                    <excludes>
-                      <exclude>commons-logging</exclude>
-                      <exclude>commons-logging-api</exclude>
-                      <exclude>log4j:log4j</exclude>
-                    </excludes>
-                  </bannedDependencies>
-                  <requireJavaVersion>
-                    <version>[1.8,1.9)</version>
-                  </requireJavaVersion>
-                  <requireMavenVersion>
-                    <version>[3.5,)</version>
-                  </requireMavenVersion>
-                </rules>
-
-                <fail>true</fail>
-              </configuration>
-            </execution>
-          </executions>
-
+            <fail>true</fail>
+          </configuration>
         </plugin>
 
         <plugin>
@@ -261,6 +228,29 @@
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>3.0.0-M1</version>
+            <executions>
+              <execution>
+                <id>no-snapshots</id>
+                <!-- Invocation is defined by the release plugin goal set hence no executions -->
+                <configuration>
+
+                  <rules>
+                    <requireReleaseDeps>
+                      <message>No SNAPSHOTs allowed in depedency tree or parents allowed when releasing!</message>
+                      <failWhenParentIsSnapshot>true</failWhenParentIsSnapshot>
+                      <searchTransitive>true</searchTransitive>
+                    </requireReleaseDeps>
+                  </rules>
+
+                  <fail>true</fail>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.6</version>
             <executions>
@@ -273,6 +263,7 @@
               </execution>
             </executions>
           </plugin>
+
         </plugins>
       </build>
     </profile>
